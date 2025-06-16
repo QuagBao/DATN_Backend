@@ -1,0 +1,36 @@
+# Loại bỏ thư mục node_modules (nếu có)
+node_modules
+
+# Loại bỏ các file và thư mục tạm, logs
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# Thư mục test, docs, hoặc folder không cần thiết cho chạy production
+tests
+test
+docs
+*.md
+
+# File cấu hình IDE, hệ điều hành
+.vscode
+.idea
+*.swp
+.DS_Store
+*.env
+.env.local
+.env.*.local
+
+# Các file backup, temp
+*~
+*.bak
+*.tmp
+
+# File dockerignore, docker-compose để khỏi copy vào image
+.dockerignore
+docker-compose.yml
+
+# Nếu có thư mục dữ liệu local không cần thiết trong image
+data

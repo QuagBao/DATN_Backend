@@ -1,0 +1,27 @@
+# ==== FastAPI & Web Server ====
+fastapi
+uvicorn[standard]
+python-multipart
+
+# ==== Database ====
+sqlalchemy
+pymysql
+python-dotenv
+
+# ==== Auth & Security ====
+passlib[bcrypt]
+python-jose
+
+# ==== Logging & Dev Tools (optional) ====
+loguru
+python-dotenv
+bcrypt<4.1.0
+python-docx
+redis
+
+#==== AI processor ====
+torch
+transformers
+protobuf 
+tiktoken
+sentencepiece
