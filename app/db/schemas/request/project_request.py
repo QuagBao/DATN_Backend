@@ -5,6 +5,7 @@ from typing import Optional
 class project_create(BaseModel):
     name_project: str
     content: str
+    description: str
     start_date: str
     end_date: str
     total_numeric: float

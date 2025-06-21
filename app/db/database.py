@@ -8,12 +8,8 @@ import os
 load_dotenv()  # Load biến môi trường từ .env
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-
 if not DATABASE_URL:
     raise ValueError("❌ DATABASE_URL chưa được cấu hình trong .env")
-
-from sqlalchemy import create_engine
-
 engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,
@@ -29,7 +25,7 @@ try:
         print("✅ Kết nối đến MySQL thành công!")
 except Exception as e:
     print(f"❌ Lỗi kết nối MySQL: {e}")
-
+    
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 

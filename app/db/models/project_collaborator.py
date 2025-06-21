@@ -1,32 +1,39 @@
 import uuid
-from sqlalchemy import Column, TIMESTAMP, Integer, ForeignKey
-from sqlalchemy import String
+from sqlalchemy import Column, TIMESTAMP, String, ForeignKey
 from sqlalchemy.orm import relationship
 from app.db.database import Base
-
 
 class ProjectCollaborator(Base):
     __tablename__ = "project_collaborator"
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    account_id = Column(String(36), ForeignKey("account.id_account"))
+    account_id = Column(String(36), nullable=True)
+    full_name = Column(String(100), nullable=True)
+    email = Column(String(100), nullable=True)
+    phone = Column(String(20), nullable=True)
     project_id = Column(String(36), ForeignKey("project.id_project"))
     status = Column(String(36), nullable=False)
     applied_at = Column(TIMESTAMP, nullable=True)
     approved_at = Column(TIMESTAMP, nullable=True)
 
-    account = relationship("Account", back_populates="collaborations")
     project = relationship("Project", back_populates="collaborators")
 
-    def __init__(self, account_id, project_id, status, applied_at=None, approved_at=None):
+    def __init__(self, account_id=None, full_name=None, email=None, phone=None,
+                 project_id=None, status=None, applied_at=None, approved_at=None):
         self.account_id = account_id
+        self.full_name = full_name
+        self.email = email
+        self.phone = phone
         self.project_id = project_id
         self.status = status
         self.applied_at = applied_at
         self.approved_at = approved_at
 
     def __repr__(self):
-        return f"<ProjectCollaborator(id='{self.id}', account_id='{self.account_id}', project_id='{self.project_id}', status={self.status})>"
+        return (f"<ProjectCollaborator(id='{self.id}', account_id='{self.account_id}', "
+                f"full_name='{self.full_name}', email='{self.email}', phone='{self.phone}', "
+                f"project_id='{self.project_id}', status='{self.status}', "
+                f"applied_at={self.applied_at}, approved_at={self.approved_at})>")
 
     # Getters
     def get_status(self):

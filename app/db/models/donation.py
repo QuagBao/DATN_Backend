@@ -9,25 +9,30 @@ class Donation(Base):
     __tablename__ = "donation"
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    account_id = Column(String(36), ForeignKey("account.id_account"))
+    account_id = Column(String(36), nullable = True)
+    full_name = Column(String(36), nullable = True)
+    email = Column(String(36), nullable = True)
+    phone = Column(String(36), nullable = True)
     project_id = Column(String(36), ForeignKey("project.id_project"))
         
     amount = Column(Numeric, nullable=False)
     paytime = Column(TIMESTAMP, nullable=False)
     transaction_id = Column(String(255), nullable=False)
 
-    account = relationship("Account", back_populates="donations")
     project = relationship("Project", back_populates="donations")
 
-    def __init__(self, account_id, project_id, amount, paytime, transaction_id):
+    def __init__(self, account_id=None, full_name=None, email=None, phone=None, project_id=None, amount=None, paytime=None, transaction_id=None):
         self.account_id = account_id
+        self.full_name = full_name
+        self.email = email
+        self.phone = phone
         self.project_id = project_id
         self.amount = amount
         self.paytime = paytime
         self.transaction_id = transaction_id
 
     def __repr__(self):
-        return f"<Donation(id='{self.id}', account_id='{self.account_id}', project_id='{self.project_id}', amount='{self.amount}')>"
+        return f"<Donation(id='{self.id}', account_id='{self.account_id}', project_id='{self.project_id}', amount='{self.amount}', paytime='{self.paytime}', transaction_id='{self.transaction_id}')>"
 
     # Getters
     def get_amount(self):

@@ -7,16 +7,12 @@ from app.db.schemas.request.project_request import project_create, project_updat
 from app.db.crud.project import create_project , get_total_collaborators_and_donors_by_project, get_all_projects
 from app.db.database import get_db
 from app.db.crud.auth import require_roles
-from app.db.crud.project import get_total_collaborators_and_donors, get_projects_in_progress, get_project_by_id
+from app.db.crud.project import get_total_collaborators_and_donors,update_expired_projects, get_projects_in_progress, get_project_by_id
 from app.db.schemas.response.project_response import ProjectOut, ProjectWithStats
 from app.db.schemas.response.paginated_response import PaginatedResponse  # nếu có
 from app.db.crud.donation import get_all_donations
 from app.db.crud.collaborator import get_all_collaborator, get_all_collaborator_approved
 from math import ceil
-from app.model_AI.content_summarization_processor import (
-    summarize_text,
-    load_model_and_tokenizer
-)
 from app.db.crud.project import delete_project, get_project_by_owner_and_name, delete_image_by_id_project
 
 router = APIRouter(prefix="", tags=["project"])
@@ -103,9 +99,6 @@ def get_all_projects_endpoint(
         "total_pages": total_pages,
         "data": result
     }
-
-# ================= LOAD NLP MODEL: SUMMARIZATION =================
-summary_model, summary_tokenizer = load_model_and_tokenizer()
 # ================= API: project =================
 @router.post("/projects/create")
 def create_project_endpoint(
@@ -122,16 +115,15 @@ def create_project_endpoint(
         raise HTTPException(status_code=403, detail="Bạn không có quyền tạo dự án")
     if not parsed_data.content.strip():
         raise HTTPException(status_code=400, detail="Missing or empty 'content' field")
-    summary = summarize_text(
-        text=parsed_data.content,
-        model=summary_model,
-        tokenizer=summary_tokenizer,
-        max_length= 512,
-        summary_max_length= 200,
-        num_beams= 5
-    )
-    create_project(db, parsed_data,summary, images, user.id_account)
+    create_project(db, parsed_data, images, user.id_account)
     return {"message": "Tạo dự án thành công"}
+
+@router.post("/projects/update-expired")
+def update_expired_projects_endpoint(db: Session = Depends(get_db)):
+    today = datetime.utcnow().date()
+    count = update_expired_projects(db, today)
+    return {"message": f"Đã cập nhật {count} dự án hết hạn"}
+
 
 @router.delete("/projects/delete-by-owner")
 def delete_project_by_name_endpoint(
@@ -184,7 +176,7 @@ def get_all_donations_endpoint(
     for donation in donations:
         result.append({
             "id_donation": donation.id,
-            "account_name": donation.account.full_name,
+            "account_name": donation.full_name,
             "project_name": donation.project.name_project,
             "amount": donation.amount,
             "paytime": donation.paytime,
@@ -236,9 +228,9 @@ def get_all_collaborators_endpoint(
     for collaborator in collaborators:
         result.append({
             "id_collaborator": collaborator.id,
-            "account_name": collaborator.account.full_name,
-            "email": collaborator.account.email,
-            "phone": collaborator.account.phone,
+            "account_name": collaborator.full_name,
+            "email": collaborator.email,
+            "phone": collaborator.phone,
             "project_name": collaborator.project.name_project,
             "status": collaborator.status,
             "applied_at": collaborator.applied_at,
@@ -290,9 +282,9 @@ def get_active_collaborators_endpoint(
     for collaborator in collaborators:
         result.append({
             "id_collaborator": collaborator.id,
-            "account_name": collaborator.account.full_name,
-            "email": collaborator.account.email,
-            "phone": collaborator.account.phone,
+            "account_name": collaborator.full_name,
+            "email": collaborator.email,
+            "phone": collaborator.phone,
             "project_name": collaborator.project.name_project,
             "status": collaborator.status,
             "applied_at": collaborator.applied_at,

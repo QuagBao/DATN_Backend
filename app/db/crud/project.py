@@ -8,7 +8,7 @@ from typing import Optional, List
 from datetime import date
 from sqlalchemy import and_
 
-def create_project(db: Session, data, summary: str, images: List[UploadFile], id_owner: str):
+def create_project(db: Session, data, images: List[UploadFile], id_owner: str):
     # 1. Parse ngày
     start = datetime.strptime(data.start_date, "%Y-%m-%d").date()
     end = datetime.strptime(data.end_date, "%Y-%m-%d").date()
@@ -16,7 +16,7 @@ def create_project(db: Session, data, summary: str, images: List[UploadFile], id
     # 2. Tạo project
     new_project = Project(
         name_project=data.name_project,
-        description=summary,
+        description=data.description,
         content=data.content,
         status="IN_PROGRESS",
         start_date=start,
@@ -40,11 +40,21 @@ def create_project(db: Session, data, summary: str, images: List[UploadFile], id
             shutil.copyfileobj(image.file, f)
         image_db = Image(url=image_path, id_project=new_project.id_project)
         db.add(image_db)
-
     # 5. Commit ảnh sau khi add tất cả
     db.commit()
-
     return new_project
+
+def update_expired_projects(db: Session, today: date) -> int:
+    # Update project nào có end_date < hôm nay, status chưa là EXPIRED
+    expired_projects = db.query(Project).filter(
+        Project.end_date < today,
+        Project.status != "EXPIRED"
+    ).all()
+    for project in expired_projects:
+        project.status = "EXPIRED"
+    db.commit()
+    return len(expired_projects)
+
 
 def update_project(db: Session, id_project: str, data, id_images_to_keep: Optional[List[str]] = None, images: Optional[List[UploadFile]] = None):
     project = db.query(Project).filter(Project.id_project == id_project).first()

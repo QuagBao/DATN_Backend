@@ -1,18 +1,17 @@
-import os
 import redis
 
-# Nếu Docker Compose đã cung cấp REDIS_URL, ví dụ "redis://redis:6379/0"
-redis_url = os.getenv("REDIS_URL")
-if redis_url:
-    # from_url tự parse host, port và db (ở đây db=0)
-    redis_client = redis.Redis.from_url(redis_url, decode_responses=True)
-else:
-    # Fallback: đọc riêng host và port
-    redis_host = os.getenv("REDIS_HOST", "127.0.0.1")
-    redis_port = int(os.getenv("REDIS_PORT", 6379))
-    redis_client = redis.Redis(
-        host=redis_host,
-        port=redis_port,
-        db=0,
-        decode_responses=True
-    )
+redis_client = redis.Redis(
+    host='redis-10576.c337.australia-southeast1-1.gce.redns.redis-cloud.com',
+    port=10576,
+    username='default',
+    password='dVAZRl6Ae33jhQP6UHAtE7X8DDDsEYFm',
+    db=0,
+    decode_responses=True
+)
+
+# Test kết nối
+try:
+    pong = redis_client.ping()
+    print("Redis Connected:", pong)
+except redis.exceptions.RedisError as e:
+    print("Redis Connection Error:", e)

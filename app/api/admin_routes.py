@@ -16,6 +16,7 @@ from app.db.crud.role import get_role_by_name, get_permission_ids_by_role_id, se
 from app.db.crud.account import update_admin_info
 from app.db.crud.collaborator import get_collaborator_by_id, update_status_collaborator, delete_collaborator_by_id
 from app.db.schemas.response.paginated_response import PaginatedResponse  # nếu có
+from app.db.models.project_collaborator import ProjectCollaborator
 from math import ceil
 from app.db.schemas.response.account_response import account_out
 import io
@@ -72,20 +73,6 @@ def update_project_by_name_endpoint(
 
     updated_project = update_project(db, project.id_project, parsed_data, id_images_to_keep, images)
     return {"message": "Cập nhật dự án thành công", "id_project": updated_project.id_project}
-
-# @router.delete("/projects/delete-by-owner")
-# def delete_project_by_name_endpoint(
-#     name_project: str = Form(...),
-#     db: Session = Depends(get_db),
-#     admin=Depends(require_roles(["admin"]))
-# ):
-#     if admin.role.name != "admin":
-#         raise HTTPException(status_code=403, detail="Bạn không có quyền xóa dự án")
-#     project = get_project_by_owner_and_name(db, admin.id_account, name_project)
-#     if not project:
-#         raise HTTPException(status_code=404, detail="Không tìm thấy dự án")
-#     delete_project(db, project.id_project)
-#     return {"message": "Xóa dự án thành công", "id_project": project.id_project}
 
 @router.get("/projects/by-owner", response_model=PaginatedResponse[ProjectWithStats])
 def get_projects_by_owner_endpoint(
@@ -277,56 +264,56 @@ def unblock_user_endpoint(
     return {"message": "Đã mở khóa người dùng", "id_user": id_account}
 
 #================= API: permissions =================
-@router.get("/permissions/dashboard")
-def get_permission_matrix(
-    db: Session = Depends(get_db),
-    admin = Depends(require_roles(["admin"]))
-):
-    if admin.role.name != "admin":
-        raise HTTPException(status_code=403, detail="Bạn không có quyền xem danh sách quyền")
-    permissions = get_all_permissions(db)
-    result = []
-    for perm in permissions:
-        resource = get_resource_name_by_permission(db, perm.id_permission)
-        if not resource:
-            raise HTTPException(status_code=404, detail="Không tìm thấy resource")
-        action = get_action_name_by_permission(db, perm.id_permission)
-        if not action:
-            raise HTTPException(status_code=404, detail="Không tìm thấy action")
-        result.append({
-            "id_permission": perm.id_permission,
-            "resource": resource.name,
-            "action": action.name
-        })
-    return result
+# @router.get("/permissions/dashboard")
+# def get_permission_matrix(
+#     db: Session = Depends(get_db),
+#     admin = Depends(require_roles(["admin"]))
+# ):
+#     if admin.role.name != "admin":
+#         raise HTTPException(status_code=403, detail="Bạn không có quyền xem danh sách quyền")
+#     permissions = get_all_permissions(db)
+#     result = []
+#     for perm in permissions:
+#         resource = get_resource_name_by_permission(db, perm.id_permission)
+#         if not resource:
+#             raise HTTPException(status_code=404, detail="Không tìm thấy resource")
+#         action = get_action_name_by_permission(db, perm.id_permission)
+#         if not action:
+#             raise HTTPException(status_code=404, detail="Không tìm thấy action")
+#         result.append({
+#             "id_permission": perm.id_permission,
+#             "resource": resource.name,
+#             "action": action.name
+#         })
+#     return result
 
-@router.get("/roles/{role_name}/permissions")
-def get_permissions_of_role(role_name: str, 
-                            db: Session = Depends(get_db),
-                            admin=Depends(require_roles(["admin"]))):
-    if admin.role.name != "admin":
-        raise HTTPException(status_code=403, detail="Bạn không có quyền xem danh sách quyền")
-    role = get_role_by_name(db, role_name)
-    if not role:
-        raise HTTPException(404, "Không tìm thấy role")
+# @router.get("/roles/{role_name}/permissions")
+# def get_permissions_of_role(role_name: str, 
+#                             db: Session = Depends(get_db),
+#                             admin=Depends(require_roles(["admin"]))):
+#     if admin.role.name != "admin":
+#         raise HTTPException(status_code=403, detail="Bạn không có quyền xem danh sách quyền")
+#     role = get_role_by_name(db, role_name)
+#     if not role:
+#         raise HTTPException(404, "Không tìm thấy role")
 
-    return get_permission_ids_by_role_id(db, role.id_role)
+#     return get_permission_ids_by_role_id(db, role.id_role)
 
-@router.post("/roles/{role_name}/set-permissions")
-def set_permissions_for_role(
-    role_name: str,
-    permissions: list[str] = Form(...),
-    db: Session = Depends(get_db),
-    admin=Depends(require_roles(["admin"]))
-):
-    if admin.role.name != "admin":
-        raise HTTPException(status_code=403, detail="Bạn không có quyền cập nhật quyền")
-    role = get_role_by_name(db, role_name)
-    if not role:
-        raise HTTPException(404, "Không tìm thấy role")
+# @router.post("/roles/{role_name}/set-permissions")
+# def set_permissions_for_role(
+#     role_name: str,
+#     permissions: list[str] = Form(...),
+#     db: Session = Depends(get_db),
+#     admin=Depends(require_roles(["admin"]))
+# ):
+#     if admin.role.name != "admin":
+#         raise HTTPException(status_code=403, detail="Bạn không có quyền cập nhật quyền")
+#     role = get_role_by_name(db, role_name)
+#     if not role:
+#         raise HTTPException(404, "Không tìm thấy role")
 
-    set_permissions_for_role_id(db, role.id_role, permissions)
-    return {"message": "Cập nhật quyền thành công"}
+#     set_permissions_for_role_id(db, role.id_role, permissions)
+#     return {"message": "Cập nhật quyền thành công"}
 
 # ================= API: collaborator =================
 
@@ -373,25 +360,24 @@ def export_collaborators_csv(
 ):
     if admin.role.name != "admin":
         raise HTTPException(status_code=403, detail="Bạn không có quyền xuất danh sách cộng tác viên")
-    
     collaborators = get_collaborator_by_project_id(db, id_project)
     if not collaborators:
         raise HTTPException(status_code=404, detail="Không có cộng tác viên nào để xuất")
     name_project = collaborators[0].project.name_project
-
+    # Tạo CSV
     output = io.StringIO()
-    output.write("id,full name,email,phone\n")
+    output.write("full_name,email,phone\n")
     for col in collaborators:
-        output.write(f"{col.account_id},{col.account.full_name},{col.account.email},{col.account.phone}\n")    
+        output.write(
+            f"{col.full_name or ''},"
+            f"{col.email or ''},"
+            f"{col.phone or ''}\n"
+        )
     csv_data = output.getvalue()
     output.close()
-
     bom = '\ufeff'
-    csv_with_bome = bom + csv_data
-    # Chuyển toàn bộ sang UTF-8
-    csv_bytes = csv_with_bome.encode("utf-8")
-
-    # Trả về file CSV với header để trình duyệt tự động tải
+    csv_with_bom = bom + csv_data
+    csv_bytes = csv_with_bom.encode("utf-8")
     filename = f"collaborators_{name_project}.csv"
     filename_enc = quote(filename, safe="")
     content_disp = f"attachment; filename*=UTF-8''{filename_enc}"
@@ -400,6 +386,47 @@ def export_collaborators_csv(
         media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": content_disp}
     )
+
+@router.post("/collaborators/import")
+def import_collaborators_csv(
+    id_project: str,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    admin=Depends(require_roles(["admin"]))
+):
+    if admin.role.name != "admin":
+        raise HTTPException(status_code=403, detail="Bạn không có quyền import cộng tác viên")
+    if file.content_type != "text/csv":
+        raise HTTPException(status_code=400, detail="File phải là CSV")
+    content = file.file.read().decode("utf-8-sig").splitlines()
+    header = content[0].strip().split(",")
+    rows = content[1:]
+    if header != ["full_name", "email", "phone"]:
+        raise HTTPException(status_code=400, detail="CSV không đúng định dạng header")
+    count = 0
+    for row in rows:
+        fields = row.strip().split(",")
+        if len(fields) != 3:
+            continue
+        full_name, email, phone = fields
+
+        # Tạo collaborator mới
+        collaborator = ProjectCollaborator(
+            account_id=None,
+            project_id=id_project,
+            full_name=full_name.strip(),
+            email=email.strip(),
+            phone=phone.strip(),
+            status="active",
+            applied_at=datetime.utcnow()
+        )
+        db.add(collaborator)
+        count += 1
+
+    db.commit()
+
+    return {"message": f"Đã import {count} cộng tác viên thành công"}
+
     
 @router.get("/donations/export")
 def export_donations_csv(
@@ -409,33 +436,78 @@ def export_donations_csv(
 ):
     if admin.role.name != "admin":
         raise HTTPException(status_code=403, detail="Bạn không có quyền xuất danh sách quyên góp")
-    # Giả sử bạn có hàm để lấy danh sách quyên góp theo ID dự án
+    # Lấy danh sách donation theo project
     donations = get_donation_by_project_id(db, id_project)
     if not donations:
         raise HTTPException(status_code=404, detail="Không có quyên góp nào để xuất")
     name_project = donations[0].project.name_project
-
+    # Tạo CSV
     output = io.StringIO()
-    output.write("id,full name,email,phone,amount,paytime,transaction id\n")
+    output.write("full_name,email,phone,amount,paytime,transaction_id\n")
     for donation in donations:
-        output.write(f"{donation.account_id},{donation.account.full_name},{donation.account.email},{donation.account.phone},{donation.amount},{donation.paytime},{donation.transaction_id}\n")
-    
+        output.write(
+            f"{donation.full_name or ''},"
+            f"{donation.email or ''},"
+            f"{donation.phone or ''},"
+            f"{donation.amount},"
+            f"{donation.paytime},"
+            f"{donation.transaction_id}\n"
+        )
     csv_data = output.getvalue()
     output.close()
-
+    # Thêm BOM để Excel đọc đúng
     bom = '\ufeff'
-    csv_with_bome = bom + csv_data
-    # Chuyển toàn bộ sang UTF-8
-    csv_bytes = csv_with_bome.encode("utf-8")
-
-    # Trả về file CSV với header để trình duyệt tự động tải
-    filename = f"collaborators_{name_project}.csv"
+    csv_with_bom = bom + csv_data
+    csv_bytes = csv_with_bom.encode("utf-8")
+    filename = f"donations_{name_project}.csv"
     filename_enc = quote(filename, safe="")
     content_disp = f"attachment; filename*=UTF-8''{filename_enc}"
-
-    # Trả về file CSV với header để trình duyệt tự động tải
     return Response(
         content=csv_bytes,
         media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": content_disp}
     )
+
+@router.post("/donations/import")
+def import_donations_csv(
+    id_project: str,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    admin=Depends(require_roles(["admin"]))
+):
+    if admin.role.name != "admin":
+        raise HTTPException(status_code=403, detail="Bạn không có quyền import donation")
+
+    if file.content_type != "text/csv":
+        raise HTTPException(status_code=400, detail="File phải là CSV")
+
+    content = file.file.read().decode("utf-8-sig").splitlines()
+    header = content[0].strip().split(",")
+    rows = content[1:]
+
+    if header != ["full_name", "email", "phone", "amount", "paytime", "transaction_id"]:
+        raise HTTPException(status_code=400, detail="CSV không đúng định dạng header")
+
+    count = 0
+    for row in rows:
+        fields = row.strip().split(",")
+        if len(fields) != 6:
+            continue
+        full_name, email, phone, amount, paytime, transaction_id = fields
+
+        # Tạo donation mới
+        donation = Donation(
+            project_id=id_project,
+            full_name=full_name.strip(),
+            email=email.strip(),
+            phone=phone.strip(),
+            amount=float(amount),
+            paytime=paytime.strip(),
+            transaction_id=transaction_id.strip()
+        )
+        db.add(donation)
+        count += 1
+
+    db.commit()
+
+    return {"message": f"Đã import {count} donation thành công"}

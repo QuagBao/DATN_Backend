@@ -16,8 +16,6 @@ class Account(Base):
     email = Column(String(255), unique=True, nullable=False)
     phone = Column(String(255), nullable=True)
     full_name = Column(String(255), nullable=True)
-    # date_of_birth = Column(TIMESTAMP(timezone=True), nullable=True)
-    # address = Column(String(255), nullable = True)
     status = Column(String(255), nullable=True)
 
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=func.now())
@@ -26,19 +24,7 @@ class Account(Base):
     # Relationship
     role = relationship("Role", back_populates="accounts")
     owned_projects = relationship("Project", back_populates="owner")
-    donations = relationship("Donation", back_populates="account")
-    collaborations = relationship("ProjectCollaborator", back_populates="account")
     project_ideas = relationship("ProjectIdea", back_populates="account")
-    
-    # def __init__(self, password, email, phone=None, full_name=None,date_of_birth=None, address=None, status=None, id_role=None):
-    #     self.password = password
-    #     self.email = email
-    #     self.phone = phone
-    #     self.full_name = full_name
-    #     self.date_of_birth = date_of_birth
-    #     self.address = address
-    #     self.status = status
-    #     self.id_role = id_role
         
     def __init__(self, password, email, phone=None, full_name=None, status=None, id_role=None):
         self.password = password
@@ -59,12 +45,6 @@ class Account(Base):
     def get_full_name(self):
         return self.full_name
 
-    # def get_date_of_birth(self):
-    #     return self.date_of_birth
-    
-    # def get_address(self):
-    #     return self.address
-
     def get_status(self):
         return self.status
 
@@ -80,11 +60,3 @@ class Account(Base):
 
     def set_full_name(self, new_full_name):
         self.full_name = new_full_name
-
-    # def set_date_of_birth(self, new_date_of_birth):
-    #     self.date_of_birth = new_date_of_birth
-    
-    # def set_address(self, new_address):
-    #     self.address = new_address
-        
-    

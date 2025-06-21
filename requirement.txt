@@ -18,10 +18,3 @@ python-dotenv
 bcrypt<4.1.0
 python-docx
 redis
-
-#==== AI processor ====
-torch
-transformers
-protobuf 
-tiktoken
-sentencepiece

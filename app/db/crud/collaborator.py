@@ -15,15 +15,19 @@ def has_applied_as_collaborator(db: Session, account_id: str, project_id: str) -
         project_id=project_id
     ).first() is not None
 
-def create_collaborator_application(db: Session, account_id: str, project_id: str):
+def create_collaborator_application(db: Session, project_id: str, full_name: str, email: str, phone: str, account_id: str = None):
     new_collaborator = ProjectCollaborator(
-        account_id=account_id,
+        account_id=account_id,  # Public user không có account_id
+        full_name=full_name,
+        email=email,
+        phone=phone,
         project_id=project_id,
-        status= "pending",  # pending
+        status="pending",  # pending
         applied_at=datetime.utcnow()
     )
     db.add(new_collaborator)
     db.commit()
+    db.refresh(new_collaborator)
 
 def get_all_collaborator(
     db: Session,
@@ -36,9 +40,8 @@ def get_all_collaborator(
     universal_search: Optional[str] = None
 ):
     query = db.query(ProjectCollaborator).options(
-        joinedload(ProjectCollaborator.account),
         joinedload(ProjectCollaborator.project)
-    ).join(ProjectCollaborator.account).join(ProjectCollaborator.project)
+    ).join(ProjectCollaborator.project)
     
     if name_project:
         query = query.filter(Project.name_project.ilike(f"%{name_project}%"))
@@ -59,9 +62,9 @@ def get_all_collaborator(
     if universal_search:
         query = query.filter(
             or_(
-                Account.full_name.ilike(f"%{universal_search}%"),
-                Account.email.ilike(f"%{universal_search}%"),
-                Account.phone.ilike(f"%{universal_search}%")
+                ProjectCollaborator.full_name.ilike(f"%{universal_search}%"),
+                ProjectCollaborator.email.ilike(f"%{universal_search}%"),
+                ProjectCollaborator.phone.ilike(f"%{universal_search}%")
             )
         )
     total = query.count()
@@ -79,9 +82,8 @@ def get_all_collaborator_approved(
     universal_search: Optional[str] = None
 ):
     query = db.query(ProjectCollaborator).options(
-        joinedload(ProjectCollaborator.account),
         joinedload(ProjectCollaborator.project)
-    ).join(ProjectCollaborator.account).join(ProjectCollaborator.project)
+    ).join(ProjectCollaborator.project)
     
     if name_project:
         query = query.filter(Project.name_project.ilike(f"%{name_project}%"))
@@ -102,7 +104,7 @@ def get_all_collaborator_approved(
     if universal_search:
         query = query.filter(
             or_(
-                Account.full_name.ilike(f"%{universal_search}%"),
+                ProjectCollaborator.full_name.ilike(f"%{universal_search}%"),
             )
         )
     total = query.count()
@@ -135,7 +137,6 @@ def get_collaborator_by_project_id(db: Session, project_id: str):
         db.query(ProjectCollaborator)
         .filter_by(project_id=project_id)
         .options(
-            joinedload(ProjectCollaborator.account),   # load bảng Account
             joinedload(ProjectCollaborator.project)    # load bảng Project
         )
         .all()
