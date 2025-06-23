@@ -17,16 +17,6 @@ import asyncio
 router = APIRouter(prefix="/donation", tags=["donations"])
 logger = logging.getLogger(__name__)
 
-# # ================= WebSocket =================
-# @router.websocket("/ws/project/{project_id}")
-# async def websocket_endpoint(websocket: WebSocket, project_id: str):
-#     await manager.connect(websocket, project_id)
-#     try:
-#         while True:
-#             await websocket.receive_text()  # giữ kết nối
-#     except WebSocketDisconnect:
-#         manager.disconnect(websocket, project_id)
-
 # ================= Donation =================
 @router.post("/create")
 async def create_donation(
@@ -61,17 +51,6 @@ async def create_donation(
     current_numeric = crud_project.get_current_numeric_by_project(db=db, id_project=donation.project_id)
     current_numeric += donation.amount
     crud_project.update_current_numeric(db=db, id_project=donation.project_id, new_numeric=current_numeric)
-
-    # Gửi WebSocket nếu có
-    # asyncio.create_task(
-    #     manager.broadcast(
-    #         project_id=donation.project_id,
-    #         message={
-    #             "project_id": donation.project_id,
-    #             "current_numeric": current_numeric
-    #         }
-    #     )
-    # )
 
     # Trả về
     return {
