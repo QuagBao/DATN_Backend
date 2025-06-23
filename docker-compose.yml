@@ -41,7 +41,7 @@ services:
       # Xây dựng DATABASE_URL cho SQLAlchemy / ORM:
       DATABASE_URL: "mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${MYSQL_HOST}:3306/${MYSQL_DATABASE}"
     ports:
-      - "8000:8000"
+      - "7070:7070"
     command: ["python", "run.py"]
     networks:
       - backend-network 

@@ -9,7 +9,7 @@ RUN pip install --no-cache-dir -r requirement.txt
 
 COPY . .
 
-EXPOSE 8000
+EXPOSE 7070
 
 # Chạy file run.py (chạy uvicorn)
 CMD ["python", "run.py"]
