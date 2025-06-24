@@ -421,7 +421,7 @@ def import_collaborators_csv(
             full_name=full_name.strip(),
             email=email.strip(),
             phone=phone.strip(),
-            status="active",
+            status="pending",
             applied_at=datetime.utcnow()
         )
         db.add(collaborator)
