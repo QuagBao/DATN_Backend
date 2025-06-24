@@ -21,17 +21,15 @@ services:
       - "${MYSQL_PORT}:3307"
     volumes:
       - bk_hope_mysql_data:/var/lib/mysql
-    networks:
-      - backend-network 
 
   #################################################
   # 2) Backend (Python / FastAPI / Uvicorn)
   #################################################
-  backend:
+  backend-fastapi :
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: backend-app
+    container_name: fastAPI
     restart: unless-stopped
     depends_on:
       - bk_hope_mysql
@@ -43,12 +41,6 @@ services:
     ports:
       - "7070:7070"
     command: ["python", "run.py"]
-    networks:
-      - backend-network 
 
 volumes:
   bk_hope_mysql_data:
-  
-networks:
-  backend-network:
-    driver: bridge

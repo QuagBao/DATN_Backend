@@ -490,7 +490,7 @@ def import_donations_csv(
     header = content[0].strip().split(",")
     rows = content[1:]
 
-    if header != ["full_name", "email", "phone", "amount", "paytime", "transaction_id"]:
+    if header != ["Họ và tên", "Email", "Số điện thoại", "Số tiền", "Thời gian giao dịch", "Mã giao dịch"]:
         raise HTTPException(status_code=400, detail="CSV không đúng định dạng header")
 
     count = 0
@@ -499,6 +499,12 @@ def import_donations_csv(
         if len(fields) != 6:
             continue
         full_name, email, phone, amount, paytime, transaction_id = fields
+
+        # Chuyển đổi định dạng ngày tháng từ 'MM/DD/YYYY' sang 'YYYY-MM-DD'
+        try:
+            paytime = datetime.strptime(paytime.strip(), "%m/%d/%Y").strftime("%Y-%m-%d")
+        except ValueError:
+            raise HTTPException(status_code=400, detail=f"Ngày giao dịch '{paytime}' không hợp lệ.")
 
         # Tạo donation mới
         donation = Donation(
