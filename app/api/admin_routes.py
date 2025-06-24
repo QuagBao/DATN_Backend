@@ -17,6 +17,8 @@ from app.db.crud.account import update_admin_info
 from app.db.crud.collaborator import get_collaborator_by_id, update_status_collaborator, delete_collaborator_by_id
 from app.db.schemas.response.paginated_response import PaginatedResponse  # nếu có
 from app.db.models.project_collaborator import ProjectCollaborator
+from app.db.models.donation import Donation
+from app.db.crud import project as crud_project
 from math import ceil
 from app.db.schemas.response.account_response import account_out
 import io
@@ -506,6 +508,12 @@ def import_donations_csv(
             transaction_id=transaction_id.strip()
         )
         db.add(donation)
+
+        # Cập nhật số tiền hiện tại & số lượt ủng hộ của project
+        current_numeric = crud_project.get_current_numeric_by_project(db=db, id_project=donation.project_id)
+        current_numeric += donation.amount
+        crud_project.update_current_numeric(db=db, id_project=donation.project_id, new_numeric=current_numeric)
+        
         count += 1
 
     db.commit()

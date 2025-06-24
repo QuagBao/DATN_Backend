@@ -202,9 +202,9 @@ def get_projects_in_progress(db: Session, skip: int = 0, limit: int = 40):
 
 def get_total_collaborators_and_donors(db: Session):
     # Tổng số account_id duy nhất trong project_collaborator
-    total_collaborators = db.query(ProjectCollaborator.account_id).filter(ProjectCollaborator.status == "active").distinct().count()
-    # Tổng số account_id duy nhất trong donation
-    total_donors = db.query(Donation.account_id).distinct().count()
+    total_collaborators = db.query(ProjectCollaborator.id).filter(ProjectCollaborator.status == "active").distinct().count()
+    # Tổng số transaction_id duy nhất trong donation
+    total_donors = db.query(Donation.transaction_id).distinct().count()
     # Tổng số project_id duy nhất trong project 
     total_projects = db.query(Project.id_project).distinct().count()
     return {
@@ -214,10 +214,10 @@ def get_total_collaborators_and_donors(db: Session):
     }
 
 def get_total_collaborators_and_donors_by_project(db: Session, id_project: str):
-    # Tổng số account_id duy nhất trong project_collaborator
-    total_collaborators = db.query(ProjectCollaborator.account_id).filter(ProjectCollaborator.project_id == id_project).filter(ProjectCollaborator.status == "active").distinct().count()
-    # Tổng số account_id duy nhất trong donation
-    total_donors = db.query(Donation.account_id).filter(Donation.project_id == id_project).distinct().count()
+    # Tổng số id duy nhất trong project_collaborator
+    total_collaborators = db.query(ProjectCollaborator.id).filter(ProjectCollaborator.project_id == id_project).filter(ProjectCollaborator.status == "active").distinct().count()
+    # Tổng số transaction_id duy nhất trong donation
+    total_donors = db.query(Donation.transaction_id).filter(Donation.project_id == id_project).distinct().count()
     return total_collaborators, total_donors
 
 def get_current_numeric_by_project(db: Session, id_project: str):
