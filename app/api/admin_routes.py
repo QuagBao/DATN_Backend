@@ -368,12 +368,13 @@ def export_collaborators_csv(
     name_project = collaborators[0].project.name_project
     # Tạo CSV
     output = io.StringIO()
-    output.write("full_name,email,phone\n")
+    output.write("full_name,email,phone,approved_at\n")
     for col in collaborators:
         output.write(
             f"{col.full_name or ''},"
             f"{col.email or ''},"
-            f"{col.phone or ''}\n"
+            f"{col.phone or ''},"
+            f"{col.approved_at or ''},\n"
         )
     csv_data = output.getvalue()
     output.close()
@@ -518,4 +519,4 @@ def import_donations_csv(
 
     db.commit()
 
-    return {"message": f"Đã import {count} donation thành công"}
+    return {"message": f"Đã import {count} lượt ủng hộ thành công"}
