@@ -422,7 +422,8 @@ def import_collaborators_csv(
             email=email.strip(),
             phone=phone.strip(),
             status="active",
-            applied_at=datetime.utcnow()
+            applied_at=datetime.utcnow(),
+            approved_at=datetime.utcnow()
         )
         db.add(collaborator)
         count += 1
