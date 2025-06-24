@@ -368,12 +368,13 @@ def export_collaborators_csv(
     name_project = collaborators[0].project.name_project
     # Tạo CSV
     output = io.StringIO()
-    output.write("full_name,email,phone,approved_at\n")
+    output.write("Họ và tên,Email,Số điện thoại,Ngày nộp đơn,Ngày phê duyệt\n")
     for col in collaborators:
         output.write(
             f"{col.full_name or ''},"
             f"{col.email or ''},"
             f"{col.phone or ''},"
+            f"{col.applied_at or ''},"
             f"{col.approved_at or ''},\n"
         )
     csv_data = output.getvalue()
@@ -404,7 +405,7 @@ def import_collaborators_csv(
     content = file.file.read().decode("utf-8-sig").splitlines()
     header = content[0].strip().split(",")
     rows = content[1:]
-    if header != ["full_name", "email", "phone"]:
+    if header != ["Họ và tên", "Email", "Số điện thoại"]:
         raise HTTPException(status_code=400, detail="CSV không đúng định dạng header")
     count = 0
     for row in rows:
@@ -446,7 +447,7 @@ def export_donations_csv(
     name_project = donations[0].project.name_project
     # Tạo CSV
     output = io.StringIO()
-    output.write("full_name,email,phone,amount,paytime,transaction_id\n")
+    output.write("Họ và tên,Email,Số điện thoại,Số tiền,Thời gian thanh toán,Mã giao dịch\n")
     for donation in donations:
         output.write(
             f"{donation.full_name or ''},"
