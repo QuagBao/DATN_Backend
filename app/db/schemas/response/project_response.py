@@ -7,6 +7,7 @@ from app.db.schemas.response.image_response import ImageResponse
 class ProjectOut(BaseModel):
     id_project: str
     name_project: str
+    id_owner:str
     description: Optional[str]
     content: Optional[str]
     start_date: date

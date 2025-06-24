@@ -129,9 +129,9 @@ def update_expired_projects_endpoint(db: Session = Depends(get_db)):
 def delete_project_by_name_endpoint(
     name_project: str = Form(...),
     db: Session = Depends(get_db),
-    user =Depends(require_roles(["admin,staff"]))
+    user = Depends(require_roles(["staff", "admin"]))
 ):
-    if user.role.name != "staff" or user.role.name != "admin":
+    if user.role.name not in ["staff", "admin"]:
         raise HTTPException(status_code=403, detail="Bạn không có quyền xóa dự án")
     project = get_project_by_owner_and_name(db, user.id_account, name_project)
     if not project:
