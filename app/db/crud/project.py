@@ -65,6 +65,8 @@ def update_project(db: Session, id_project: str, data, id_images_to_keep: Option
         project.name_project = data.name_project
     if data.description is not None:
         project.description = data.description
+    if data.content is not None:
+        project.content = data.content
     if data.start_date is not None:
         project.start_date = datetime.strptime(data.start_date, "%Y-%m-%d").date()
     if data.end_date is not None:
