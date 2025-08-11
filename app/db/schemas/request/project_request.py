@@ -13,6 +13,7 @@ class project_create(BaseModel):
 class project_update(BaseModel):
     name_project: Optional[str] = None
     description: Optional[str] = None
+    content: Optional[str] = None
     start_date: Optional[str] = None
     end_date: Optional[str] = None
     total_numeric: Optional[float] = None
