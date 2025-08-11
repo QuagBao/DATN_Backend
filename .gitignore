@@ -1,0 +1,16 @@
+# Bỏ qua file .env
+.env
+
+# Bỏ qua thư mục ảo
+.venv/
+
+# Bỏ qua file cache Python
+__pycache__/
+
+# Bỏ qua file tạm
+*.pyc
+*.pyo
+*.pyd
+
+# Bỏ qua thư mục Docker volumes (nếu có)
+data/

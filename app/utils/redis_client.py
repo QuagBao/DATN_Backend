@@ -1,10 +1,10 @@
 import redis
 
 redis_client = redis.Redis(
-    host='redis-10576.c337.australia-southeast1-1.gce.redns.redis-cloud.com',
-    port=10576,
+    host='redis-11457.c15.us-east-1-4.ec2.redns.redis-cloud.com',
+    port=11457,
     username='default',
-    password='dVAZRl6Ae33jhQP6UHAtE7X8DDDsEYFm',
+    password='9FuROefquF9YGIDpmyWQY3gdPqK1vGeY',
     db=0,
     decode_responses=True
 )
@@ -15,3 +15,5 @@ try:
     print("Redis Connected:", pong)
 except redis.exceptions.RedisError as e:
     print("Redis Connection Error:", e)
+
+
